@@ -3,7 +3,7 @@ namespace: ``castro``
 
 **AMR**
 
-.. index:: castro.state_interp_order, castro.lin_limit_state_interp, castro.state_nghost, castro.do_reflux, castro.update_sources_after_reflux
+.. index:: castro.state_interp_order, castro.lin_limit_state_interp, castro.state_nghost, castro.do_reflux, castro.update_sources_after_reflux, castro.allow_non_unit_aspect_zones
 
 
 +--------------------------------------------+-------------------------------------------------------------+---------------+
@@ -13,7 +13,8 @@ namespace: ``castro``
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 | ``lin_limit_state_interp``                 | how to do limiting of the state data when interpolating 0:  | 0             |
 |                                            | only prevent new extrema 1: preserve linear combinations of |               |
-|                                            | state variables                                             |               |
+|                                            | state variables 2: preserve linear combinations and prevent |               |
+|                                            | new extrema                                                 |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 | ``state_nghost``                           | Number of ghost zones for state data to have. Note that if  | 0             |
 |                                            | you are using radiation, choosing this to be zero will be   |               |
@@ -24,6 +25,10 @@ namespace: ``castro``
 | ``update_sources_after_reflux``            | whether to re-compute new-time source terms after a reflux  | 1             |
 |                                            | Note: this only works for the CTU and simple-SDC            |               |
 |                                            | time_integration_method drivers                             |               |
++--------------------------------------------+-------------------------------------------------------------+---------------+
+| ``allow_non_unit_aspect_zones``            | Castro was originally written assuming dx = dy = dz.  This  | 0             |
+|                                            | assumption is enforced at runtime.  Setting                 |               |
+|                                            | allow_non_unit_aspect_zones = 1 opts out.                   |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 
 
@@ -134,7 +139,7 @@ namespace: ``castro``
 |                                            | update the internal energy variable UEINT to match E - K.   |               |
 |                                            | Below this, UEINT remains unchanged.                        |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
-| ``use_pslope``                             | for the piecewise linear reconstruction, do we subtract off | 1             |
+| ``use_pslope``                             | for the piecewise linear reconstruction, do we subtract off | 0             |
 |                                            | :math:`(\rho g)` from the pressure before limiting?  This   |               |
 |                                            | is a well-balanced method that does well with HSE           |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
@@ -289,7 +294,7 @@ namespace: ``castro``
 
 **timestep control**
 
-.. index:: castro.fixed_dt, castro.initial_dt, castro.dt_cutoff, castro.max_dt, castro.cfl, castro.init_shrink, castro.change_max, castro.check_dt_after_advance, castro.plot_per_is_exact, castro.small_plot_per_is_exact, castro.use_retry, castro.retry_subcycle_factor, castro.retry_small_density_cutoff, castro.abundance_failure_tolerance, castro.abundance_failure_rho_cutoff, castro.use_post_step_regrid, castro.max_subcycles, castro.sdc_iters
+.. index:: castro.fixed_dt, castro.initial_dt, castro.dt_cutoff, castro.max_dt, castro.cfl, castro.init_shrink, castro.change_max, castro.check_dt_before_advance, castro.check_dt_after_advance, castro.plot_per_is_exact, castro.small_plot_per_is_exact, castro.use_retry, castro.retry_subcycle_factor, castro.retry_small_density_cutoff, castro.abundance_failure_tolerance, castro.abundance_failure_rho_cutoff, castro.use_post_step_regrid, castro.max_subcycles, castro.sdc_iters, castro.stopping_criterion_field, castro.stopping_criterion_value
 
 
 +--------------------------------------------+-------------------------------------------------------------+---------------+
@@ -317,6 +322,9 @@ namespace: ``castro``
 | ``change_max``                             | the maximum factor by which the timestep can increase or    | 1.1           |
 |                                            | decrease from one step to the next. Must be greater than    |               |
 |                                            | 1.0---use max_dt to set a cap on the timestep.              |               |
++--------------------------------------------+-------------------------------------------------------------+---------------+
+| ``check_dt_before_advance``                | whether to check that we will take a valid timestep before  | 1             |
+|                                            | the advance                                                 |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 | ``check_dt_after_advance``                 | whether to check that we took a valid timestep after the    | 1             |
 |                                            | advance                                                     |               |
@@ -351,6 +359,11 @@ namespace: ``castro``
 |                                            | Set to a negative value to disable this criterion.          |               |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 | ``sdc_iters``                              | Number of iterations for the simplified SDC advance.        | 2             |
++--------------------------------------------+-------------------------------------------------------------+---------------+
+| ``stopping_criterion_field``               | Field to use for determining whether to stop the            | ""            |
+|                                            | simulation.                                                 |               |
++--------------------------------------------+-------------------------------------------------------------+---------------+
+| ``stopping_criterion_value``               | Threshold value for determining whether to stop.            | 1.e200        |
 +--------------------------------------------+-------------------------------------------------------------+---------------+
 
 
