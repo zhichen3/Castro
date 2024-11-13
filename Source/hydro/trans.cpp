@@ -307,15 +307,8 @@ Castro::actual_trans_single(const Box& bx,  // NOLINT(readability-convert-member
 
         Real runewn = run - hdt * (area_t(ir,jr,kr) * flux_t(ir,jr,kr,UMX) -
                                    area_t(il,jl,kl) * flux_t(il,jl,kl,UMX)) * volinv;
-        if (idir_t == 0 && !mom_flux_has_p(0, idir_t, coord)) {
-            runewn = runewn - cdtdx * (pgp - pgm);
-        }
         Real rvnewn = rvn - hdt * (area_t(ir,jr,kr) * flux_t(ir,jr,kr,UMY) -
                                    area_t(il,jl,kl) * flux_t(il,jl,kl,UMY)) * volinv;
-        if (idir_t == 1 && !mom_flux_has_p(1, idir_t, coord)) {
-            Real r = problo[0] + static_cast<Real>(il + 0.5_rt) * dx[0];
-            rvnewn = rvnewn - cdtdx / r * (pgp - pgm);
-        }
         Real rwnewn = rwn - hdt * (area_t(ir,jr,kr) * flux_t(ir,jr,kr,UMZ) -
                                    area_t(il,jl,kl) * flux_t(il,jl,kl,UMZ)) * volinv;
         Real renewn = ren - hdt * (area_t(ir,jr,kr) * flux_t(ir,jr,kr,UEDEN) -

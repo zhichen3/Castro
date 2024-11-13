@@ -167,14 +167,32 @@ Castro::fill_RZ_geom_source (Real time, Real dt, MultiFab& cons_state, MultiFab&
     [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
     {
 
+      Real rhoinv = 1.0_rt / U_arr(i,j,k,QRHO);
+
       // radius for non-Cartesian
-      Real r = prob_lo[0] + (static_cast<Real>(i) + 0.5_rt)*dx[0];
+      Real rinv = 1.0_rt / (prob_lo[0] + (static_cast<Real>(i) + 0.5_rt)*dx[0]);
 
       // radial momentum: F = rho v_phi**2 / r
-      src(i,j,k,UMX) = U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ) / (U_arr(i,j,k,URHO) * r);
+      src(i,j,k,UMX) = U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ) * rhoinv * rinv;
 
       // azimuthal momentum: F = - rho v_r v_phi / r
-      src(i,j,k,UMZ) = - U_arr(i,j,k,UMX) * U_arr(i,j,k,UMZ) / (U_arr(i,j,k,URHO) * r);
+      src(i,j,k,UMZ) = - U_arr(i,j,k,UMX) * U_arr(i,j,k,UMZ) * rhoinv * rinv;
+
+      // We absorb pressure gradient into div Flux term,
+      // which causes an extra geometric pressure term. Address that here.
+
+      // Find pressure first:
+
+      eos_rep_t eos_state;
+      eos_state.rho = U_arr(i,j,k,URHO);
+      eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
+      for (int n = 0; n < NumSpec; n++) {
+          eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
+      }
+      eos(eos_input_re, eos_state);
+
+      // radial geometric pres term: F = p/r
+      src(i,j,k,UMX) = eos_state.p * rinv;
 
     });
   }
@@ -209,23 +227,42 @@ Castro::fill_RTheta_geom_source (Real time, Real dt, MultiFab& cons_state, Multi
     amrex::ParallelFor(bx,
     [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
     {
+      Real rhoinv = 1.0_rt / U_arr(i,j,k,QRHO);
 
       // Cell-centered Spherical Radius and Theta
-      Real r = prob_lo[0] + (static_cast<Real>(i) + 0.5_rt)*dx[0];
-      Real theta = prob_lo[1] + (static_cast<Real>(j) + 0.5_rt)*dx[1];
+      Real rinv = 1.0_rt / (prob_lo[0] + (static_cast<Real>(i) + 0.5_rt)*dx[0]);
+      Real cotTheta = cot(prob_lo[1] + (static_cast<Real>(j) + 0.5_rt)*dx[1]);
 
       // radial momentum: F = rho (v_theta**2 + v_phi**2) / r
       src(i,j,k,UMX) = (U_arr(i,j,k,UMY) * U_arr(i,j,k,UMY) +
-                        U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ)) / (U_arr(i,j,k,URHO) * r);
+                        U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ)) * rhoinv * rinv;
 
       // Theta momentum F = rho v_phi**2 cot(theta) / r - rho v_r v_theta / r
-      src(i,j,k,UMY) = (U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ) * cot(theta) -
-                        U_arr(i,j,k,UMX) * U_arr(i,j,k,UMY)) / (U_arr(i,j,k,URHO) * r);
+      src(i,j,k,UMY) = (U_arr(i,j,k,UMZ) * U_arr(i,j,k,UMZ) * cotTheta -
+                        U_arr(i,j,k,UMX) * U_arr(i,j,k,UMY)) * rhoinv * rinv;
 
       // Phi momentum: F = - rho v_r v_phi / r - rho v_theta v_phi cot(theta) / r
-      src(i,j,k,UMZ) = (- U_arr(i,j,k,UMY) * U_arr(i,j,k,UMZ) * cot(theta) -
-                        U_arr(i,j,k,UMX) * U_arr(i,j,k,UMZ)) / (U_arr(i,j,k,URHO) * r);
+      src(i,j,k,UMZ) = (- U_arr(i,j,k,UMY) * U_arr(i,j,k,UMZ) * cotTheta -
+                        U_arr(i,j,k,UMX) * U_arr(i,j,k,UMZ)) * rhoinv * rinv;
 
+      // We absorb pressure gradient into div Flux term,
+      // which causes an extra geometric pressure term. Address that here.
+
+      // Find pressure first:
+
+      eos_rep_t eos_state;
+      eos_state.rho = U_arr(i,j,k,URHO);
+      eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
+      for (int n = 0; n < NumSpec; n++) {
+          eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
+      }
+      eos(eos_input_re, eos_state);
+
+      // radial geometric pres term: F = 2 p / r
+      src(i,j,k,UMX) = 2.0_rt * eos_state.p * rinv;
+
+      // Theta geometric pres term: F = cot(theta) p / r
+      src(i,j,k,UMY) = cotTheta * eos_state.p * rinv;
     });
   }
 }

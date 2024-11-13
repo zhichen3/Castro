@@ -28,9 +28,6 @@ compute_flux_q(const int i, const int j, const int k, const int idir,
 
     int im1, im2, im3;
 
-    auto coord = geomdata.Coord();
-    auto mom_check = mom_flux_has_p(idir, idir, coord);
-
     if (idir == 0) {
         im1 = UMX;
         im2 = UMY;
@@ -55,9 +52,7 @@ compute_flux_q(const int i, const int j, const int k, const int idir,
     F(i,j,k,im3) = F(i,j,k,URHO) * qint.utt;
 
 #ifndef RADIATION
-    if (mom_check) {
-      F(i,j,k,im1) += qint.p;
-    }
+    F(i,j,k,im1) += qint.p;
 
     Real rhoetot = qint.rhoe + 0.5_rt * qint.rho *
         (qint.un * qint.un +
@@ -67,9 +62,7 @@ compute_flux_q(const int i, const int j, const int k, const int idir,
     F(i,j,k,UEDEN) = qint.un * (rhoetot + qint.p);
     F(i,j,k,UEINT) = qint.un * qint.rhoe;
 #else
-    if (mom_check) {
-      F(i,j,k,im1) += qint.p_g;
-    }
+    F(i,j,k,im1) += qint.p_g;
 
     Real rhoetot = qint.rhoe_g + 0.5_rt * qint.rho *
         (qint.un * qint.un +

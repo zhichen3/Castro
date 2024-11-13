@@ -79,17 +79,9 @@ namespace HLL {
 
       F[URHO] = U[URHO]*u_flx;
 
-      F[UMX] = U[UMX]*u_flx;
+      F[UMX] = U[UMX]*u_flx + p;
       F[UMY] = U[UMY]*u_flx;
       F[UMZ] = U[UMZ]*u_flx;
-
-      auto mom_check = mom_flux_has_p(idir, idir, coord);
-
-      if (mom_check) {
-        // we do not include the pressure term in any non-Cartesian
-        // coordinate directions
-        F[UMX+idir] = F[UMX+idir] + p;
-      }
 
       F[UEINT] = U[UEINT]*u_flx;
       F[UEDEN] = (U[UEDEN] + p)*u_flx;
@@ -257,15 +249,9 @@ namespace HLL {
 
       flux_hll[URHO] = (bp*fl_tmp - bm*fr_tmp)*bd + bp*bm*bd*(qr[QRHO] - ql[QRHO]);
 
-      // normal momentum flux.  Note for 1-d and 2-d non cartesian
-      // r-coordinate, we leave off the pressure term and handle that
-      // separately in the update, to accommodate different geometries
-      fl_tmp = ql[QRHO]*ql[ivel]*ql[ivel];
-      fr_tmp = qr[QRHO]*qr[ivel]*qr[ivel];
-      if (mom_flux_has_p(idir, idir, coord)) {
-        fl_tmp = fl_tmp + ql[QPRES];
-        fr_tmp = fr_tmp + qr[QPRES];
-      }
+      // normal momentum flux.
+      fl_tmp = ql[QRHO]*ql[ivel]*ql[ivel] + ql[QPRES];
+      fr_tmp = qr[QRHO]*qr[ivel]*qr[ivel] + qr[QPRES];
 
       flux_hll[imom] = (bp*fl_tmp - bm*fr_tmp)*bd + bp*bm*bd*(qr[QRHO]*qr[ivel] - ql[QRHO]*ql[ivel]);
 

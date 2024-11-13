@@ -259,23 +259,6 @@ Castro::mol_consup(const Box& bx,  // NOLINT(readability-convert-member-function
                         flux2(i,j,k,n) * area2(i,j,k) - flux2(i,j,k+1,n) * area2(i,j,k+1) ) / vol(i,j,k);
 #endif
 
-#if AMREX_SPACEDIM <= 2
-    if (do_hydro == 1) {
-        if (n == UMX && !mom_flux_has_p(0, 0, coord)) {
-            // Add gradp term to radial momentum equation -- only for axisymmetric
-            // coords.
-
-            update(i,j,k,UMX) -= (q0(i+1,j,k,GDPRES) - q0(i,j,k,GDPRES)) / dx[0];
-
-        } else if (n == UMY && !mom_flux_has_p(1, 1, coord)) {
-            // Add gradp term to polar(theta) momentum equation for Spherical 2D geometry
-
-            Real r = prob_lo[0] + (static_cast<Real>(i) + 0.5_rt) * dx[0];
-            update(i,j,k,UMY) -= (q1(i,j+1,k,GDPRES) - q1(i,j,k,GDPRES)) / (r * dx[1]);
-        }
-    }
-#endif
-
     // this assumes that the species are at the end of the conserved state
     if (n < NSRC) {
       update(i,j,k,n) += srcU(i,j,k,n);
@@ -347,9 +330,6 @@ Castro::compute_flux_from_q(const Box& bx,
   int iu, iv1, iv2;
   int im1, im2, im3;
 
-  auto coord = geom.Coord();
-  auto mom_check = mom_flux_has_p(idir, idir, coord);
-
   if (idir == 0) {
     iu = QU;
     iv1 = QV;
@@ -389,10 +369,7 @@ Castro::compute_flux_from_q(const Box& bx,
     // Compute fluxes, order as conserved state (not q)
     F(i,j,k,URHO) = qint(i,j,k,QRHO)*u_adv;
 
-    F(i,j,k,im1) = F(i,j,k,URHO)*qint(i,j,k,iu);
-    if (mom_check) {
-      F(i,j,k,im1) += qint(i,j,k,QPRES);
-    }
+    F(i,j,k,im1) = F(i,j,k,URHO)*qint(i,j,k,iu) + qint(i,j,k,QPRES);
     F(i,j,k,im2) = F(i,j,k,URHO)*qint(i,j,k,iv1);
     F(i,j,k,im3) = F(i,j,k,URHO)*qint(i,j,k,iv2);
 
