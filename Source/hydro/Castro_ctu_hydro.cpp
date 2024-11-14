@@ -176,9 +176,6 @@ Castro::construct_ctu_hydro_source(Real time, Real dt)  // NOLINT(readability-co
         rad_flux.push_back(FArrayBox(The_Async_Arena()));
     }
 #endif
-#if AMREX_SPACEDIM <= 2
-    FArrayBox pradial(The_Async_Arena());
-#endif
 #if AMREX_SPACEDIM == 3
     FArrayBox qmyx(The_Async_Arena()), qpyx(The_Async_Arena());
     FArrayBox qmzx(The_Async_Arena()), qpzx(The_Async_Arena());
@@ -435,13 +432,6 @@ Castro::construct_ctu_hydro_source(Real time, Real dt)  // NOLINT(readability-co
       fab_size += rad_flux[2].nBytes();
       auto const rad_flux2_arr = (rad_flux[2]).array();
 #endif
-#endif
-
-#if AMREX_SPACEDIM <= 2
-      if (!Geom().IsCartesian()) {
-          pradial.resize(xbx, 1);
-      }
-      fab_size += pradial.nBytes();
 #endif
 
 #ifdef SIMPLIFIED_SDC
@@ -1266,19 +1256,6 @@ Castro::construct_ctu_hydro_source(Real time, Real dt)  // NOLINT(readability-co
         scale_rad_flux(nbx, rad_flux_arr, area_arr, dt);
 #endif
 
-#if AMREX_SPACEDIM <= 2
-        // get the scaled radial pressure -- we need to treat this specially
-
-        if (idir == 0 && !mom_flux_has_p(0, 0, coord)) {
-            Array4<Real> pradial_fab = pradial.array();
-
-            amrex::ParallelFor(nbx,
-            [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
-            {
-                pradial_fab(i,j,k) = qex_arr(i,j,k,GDPRES) * dt;
-            });
-        }
-#endif
         // Store the fluxes from this advance. For simplified SDC integration we
         // only need to do this on the last iteration.
 
@@ -1309,20 +1286,6 @@ Castro::construct_ctu_hydro_source(Real time, Real dt)  // NOLINT(readability-co
             {
                 rad_fluxes_fab(i,j,k,n) += rad_flux_fab(i,j,k,n);
             });
-#endif
-
-#if AMREX_SPACEDIM <= 2
-            if (idir == 0 && !mom_flux_has_p(0, 0, coord)) {
-                Array4<Real> pradial_fab = pradial.array();
-                Array4<Real> P_radial_fab = P_radial.array(mfi);
-
-                amrex::ParallelFor(mfi.nodaltilebox(0),
-                [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
-                {
-                    P_radial_fab(i,j,k,0) += pradial_fab(i,j,k,0);
-                });
-            }
-
 #endif
 
         } // add_fluxes

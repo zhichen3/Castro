@@ -60,7 +60,7 @@ void problem_initialize_state_data (int i, int j, int k,
     } else {
         f = -(r - problem::x_half_max) / problem::x_half_width + 1.0_rt;
     }
-
+    f = 0.0_rt;
     state(i,j,k,URHO) = f * interpolate(height, model::idens, 1) +
              (1.0_rt - f) * interpolate(height, model::idens, 0);
 

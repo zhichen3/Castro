@@ -198,12 +198,6 @@ Castro::retry_advance_ctu(Real dt, const advance_status& status)
                 getLevel(lev).mass_fluxes[dir]->setVal(0.0);
             }
 
-#if (AMREX_SPACEDIM <= 2)
-            if (!Geom().IsCartesian()) {
-                getLevel(lev).P_radial.setVal(0.0);
-            }
-#endif
-
 #ifdef RADIATION
             if (Radiation::rad_hydro_combined) {
                 for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {

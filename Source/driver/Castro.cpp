@@ -880,11 +880,6 @@ Castro::initMFs()
       mass_fluxes[dir] = std::make_unique<MultiFab>(MultiFab(get_new_data(State_Type).boxArray(), dmap, 1, 0));
     }
 
-#if (AMREX_SPACEDIM <= 2)
-    if (!Geom().IsCartesian()) {
-      P_radial.define(getEdgeBoxArray(0), dmap, 1, 0);
-    }
-#endif
 
 #ifdef RADIATION
     if (Radiation::rad_hydro_combined) {
@@ -944,29 +939,6 @@ Castro::initMFs()
 
         flux_crse_scale = -1.0;
         flux_fine_scale = 1.0;
-
-        // The fine pressure scaling depends on dimensionality,
-        // as the dimensionality determines the number of
-        // adjacent zones. In 1D the face is a point so
-        // there's only one fine neighbor for a given coarse
-        // face; in 2D there's crse_ratio[1] faces adjacent
-        // to a face perpendicular to the radial dimension;
-        // and in 3D there would be crse_ratio**2, though
-        // we do not separate the pressure out in 3D. Note
-        // that the scaling by dt has already been handled
-        // in the construction of the P_radial array.
-
-        // The coarse pressure scaling is the same as for the
-        // fluxes, we want the total refluxing contribution
-        // over the full set of fine timesteps to equal P_radial.
-
-#if (AMREX_SPACEDIM == 1)
-        pres_crse_scale = -1.0;
-        pres_fine_scale = 1.0;
-#elif (AMREX_SPACEDIM == 2)
-        pres_crse_scale = -1.0;
-        pres_fine_scale = 1.0 / crse_ratio[1];
-#endif
 
     }
 
@@ -2584,12 +2556,6 @@ Castro::FluxRegCrseInit() {
       fine_level.flux_reg.CrseInit(*fluxes[i], i, 0, 0, NUM_STATE, flux_crse_scale);
     }
 
-#if (AMREX_SPACEDIM <= 2)
-    if (!Geom().IsCartesian()) {
-      fine_level.pres_reg.CrseInit(P_radial, 0, 0, 0, 1, pres_crse_scale);
-    }
-#endif
-
 #ifdef RADIATION
     if (Radiation::rad_hydro_combined) {
       for (int i = 0; i < AMREX_SPACEDIM; ++i) {
@@ -2613,12 +2579,6 @@ Castro::FluxRegFineAdd() {
     for (int i = 0; i < AMREX_SPACEDIM; ++i) {
       flux_reg.FineAdd(*fluxes[i], i, 0, 0, NUM_STATE, flux_fine_scale);
     }
-
-#if (AMREX_SPACEDIM <= 2)
-    if (!Geom().IsCartesian()) {
-      getLevel(level).pres_reg.FineAdd(P_radial, 0, 0, 0, 1, pres_fine_scale);
-    }
-#endif
 
 #ifdef RADIATION
     if (Radiation::rad_hydro_combined) {
@@ -2851,43 +2811,6 @@ Castro::reflux (int crse_level, int fine_level, bool in_post_timestep)
         // We no longer need the flux register data, so clear it out.
 
         reg->setVal(0.0);
-
-#if (AMREX_SPACEDIM <= 2)
-        if (!Geom().IsCartesian()) {
-
-            reg = &getLevel(lev).pres_reg;
-
-            MultiFab dr(crse_lev.grids, crse_lev.dmap, 1, 0);
-            dr.setVal(crse_lev.geom.CellSize(0));
-
-            reg->ClearInternalBorders(crse_lev.geom);
-
-            reg->Reflux(crse_state, dr, 1.0, 0, UMX, 1, crse_lev.geom);
-
-            if (update_sources_after_reflux || !in_post_timestep) {
-
-                MultiFab tmp_fluxes(crse_lev.P_radial.boxArray(),
-                                    crse_lev.P_radial.DistributionMap(),
-                                    crse_lev.P_radial.nComp(), crse_lev.P_radial.nGrow());
-
-                tmp_fluxes.setVal(0.0);
-
-                for (OrientationIter fi; fi.isValid(); ++fi)
-                {
-                    const FabSet& fs = (*reg)[fi()];
-                    if (fi().coordDir() == 0) {
-                        fs.copyTo(tmp_fluxes, 0, 0, 0, tmp_fluxes.nComp());
-                    }
-                }
-
-                MultiFab::Add(crse_lev.P_radial, tmp_fluxes, 0, 0, crse_lev.P_radial.nComp(), 0);
-
-            }
-
-            reg->setVal(0.0);
-
-        }
-#endif
 
 #ifdef RADIATION
 

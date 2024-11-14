@@ -183,16 +183,16 @@ Castro::fill_RZ_geom_source (Real time, Real dt, MultiFab& cons_state, MultiFab&
 
       // Find pressure first:
 
-      eos_rep_t eos_state;
-      eos_state.rho = U_arr(i,j,k,URHO);
-      eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
-      for (int n = 0; n < NumSpec; n++) {
-          eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
-      }
-      eos(eos_input_re, eos_state);
+      // eos_rep_t eos_state;
+      // eos_state.rho = U_arr(i,j,k,URHO);
+      // eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
+      // for (int n = 0; n < NumSpec; n++) {
+      //     eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
+      // }
+      // eos(eos_input_re, eos_state);
 
-      // radial geometric pres term: F = p/r
-      src(i,j,k,UMX) = eos_state.p * rinv;
+      // // radial geometric pres term: F = p/r
+      // src(i,j,k,UMX) = eos_state.p * rinv;
 
     });
   }
@@ -250,19 +250,19 @@ Castro::fill_RTheta_geom_source (Real time, Real dt, MultiFab& cons_state, Multi
 
       // Find pressure first:
 
-      eos_rep_t eos_state;
-      eos_state.rho = U_arr(i,j,k,URHO);
-      eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
-      for (int n = 0; n < NumSpec; n++) {
-          eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
-      }
-      eos(eos_input_re, eos_state);
+      // eos_rep_t eos_state;
+      // eos_state.rho = U_arr(i,j,k,URHO);
+      // eos_state.e = U_arr(i,j,k,UEINT) * rhoinv;
+      // for (int n = 0; n < NumSpec; n++) {
+      //     eos_state.xn[n]  = U_arr(i,j,k,UFS+n) * rhoinv;
+      // }
+      // eos(eos_input_re, eos_state);
 
-      // radial geometric pres term: F = 2 p / r
-      src(i,j,k,UMX) = 2.0_rt * eos_state.p * rinv;
+      // // radial geometric pres term: F = 2 p / r
+      // src(i,j,k,UMX) = 2.0_rt * eos_state.p * rinv;
 
-      // Theta geometric pres term: F = cot(theta) p / r
-      src(i,j,k,UMY) = cotTheta * eos_state.p * rinv;
+      // // Theta geometric pres term: F = cot(theta) p / r
+      // src(i,j,k,UMY) = cotTheta * eos_state.p * rinv;
     });
   }
 }

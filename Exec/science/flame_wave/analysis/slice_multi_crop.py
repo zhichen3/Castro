@@ -35,8 +35,8 @@ fig = plt.figure()
 fig.set_size_inches(12.0, 9.0)
 
 
-fields = ["Temp", "abar", "enuc", "z_velocity"] #, "density"]
-
+# fields = ["Temp", "abar", "enuc", "z_velocity"] #, "density"]
+fields = ["Temp", "density", "x_velocity", "y_velocity"]
 grid = ImageGrid(fig, 111, nrows_ncols=(len(fields), 1),
                  axes_pad=0.25, label_mode="L", cbar_mode="each")
 
@@ -53,10 +53,12 @@ for i, f in enumerate(fields):
         sp.set_zlim(f, 1.e18, 1.e20)
     elif f == "density":
         sp.set_zlim(f, 1.e-3, 5.e8)
-    elif f == "z_velocity":
-        sp.set_zlim(f, -2.e8, 2.e8)
-        sp.set_log(f, False)
-        sp.set_cmap(f, "bwr")
+    elif f in ["x_velocity", "y_velocity"]:
+    # elif f == "z_velocity":
+        # sp.set_zlim(f, -2.e8, 2.e8)
+        # sp.set_log(f, False)
+        # sp.set_cmap(f, "bwr")
+        sp.set_cmap(f, "coolwarm")
     elif f == "abar":
         sp.set_zlim(f, 4, 8)
         sp.set_log(f, False)

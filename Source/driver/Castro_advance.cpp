@@ -545,12 +545,6 @@ Castro::initialize_advance(Real time, Real dt, int amr_iteration)
         mass_fluxes[dir]->setVal(0.0);
     }
 
-#if (AMREX_SPACEDIM <= 2)
-    if (!Geom().IsCartesian()) {
-        P_radial.setVal(0.0);
-    }
-#endif
-
 #ifdef RADIATION
     if (Radiation::rad_hydro_combined) {
         for (int dir = 0; dir < AMREX_SPACEDIM; ++dir) {
