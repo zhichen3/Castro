@@ -895,12 +895,6 @@ Castro::initMFs()
         flux_reg.define(grids, dmap, crse_ratio, level, NUM_STATE);
         flux_reg.setVal(0.0);
 
-#if (AMREX_SPACEDIM < 3)
-        if (!Geom().IsCartesian()) {
-            pres_reg.define(grids, dmap, crse_ratio, level, 1);
-            pres_reg.setVal(0.0);
-        }
-#endif
 
 #ifdef RADIATION
         if (Radiation::rad_hydro_combined) {
