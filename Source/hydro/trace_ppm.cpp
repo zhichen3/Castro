@@ -86,8 +86,15 @@ Castro::trace_ppm(const Box& bx,
     // geometric source terms in r-direction for nonCartesian coordinate
     // or theta-direction in spherical coordinate need tracing
 
-    if ((coord == 2 || (idir == 0 && coord == 1))
+    if ((idir == 0 && coord == 1)
         && (n == QRHO || n == QPRES || n == QREINT)) {
+        do_source_trace[n] = 1;
+        continue;
+    }
+
+    if (coord == 2 &&
+        (n == QRHO || n == QPRES || n == QREINT
+         n == QU || n == QV)) {
         do_source_trace[n] = 1;
         continue;
     }
@@ -337,11 +344,20 @@ Castro::trace_ppm(const Box& bx,
 #ifndef AMREX_USE_GPU
     do_trace = do_source_trace[QUN];
 #else
-    do_trace = check_trace_source(srcQ, idir, i, j, k, QUN);
+    if (coord == 2 || (idir == 0 && coord = 1)) {
+        do_trace = 1;
+    } else {
+        do_trace = check_trace_source(srcQ, idir, i, j, k, QUN);
+    }
 #endif
 
     if (do_trace) {
         load_stencil(srcQ, idir, i, j, k, QUN, s);
+#if AMREX_SPACEDIM <= 2
+        if (coord == 2 || (idir == 0 && coord == 1)) {
+            delete_UN_geometric_pres_source(q_arr, dloga, i, j, k, s);
+        }
+#endif
         ppm_reconstruct(s, flat, sm, sp);
         ppm_int_profile_single(sm, sp, s[i0], un-cc, dtdL, Ip_src_un_0, Im_src_un_0);
         ppm_int_profile_single(sm, sp, s[i0], un+cc, dtdL, Ip_src_un_2, Im_src_un_2);

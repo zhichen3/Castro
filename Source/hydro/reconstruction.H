@@ -110,6 +110,43 @@ add_geometric_rho_source(amrex::Array4<amrex::Real const> const& q_arr,
     s[ip2] += -dloga(i+2,j,k) * q_arr(i+2,j,k,QRHO) * q_arr(i+2,j,k,ncomp);
 }
 
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void
+delete_UN_geometric_pres_source(amrex::Array4<amrex::Real const> const& q_arr,
+                                amrex::Array4<amrex::Real const> const& dloga,
+                                const int i, const int j, const int k,
+                                amrex::Real* s) {
+
+    using namespace reconstruction;
+
+    // Depending on the direction of reconstruction, delete corresponding geometric
+    // pressure source in the velocity equations.
+
+    // If idir == 0, i.e. r-direction, we should delete the geometric pressure source
+    // that were obtained by grouping pressure into x (r) momentum flux.
+
+    // If idir == 1, i.e. theta-direction, delete the geometric pressure source in V
+    // that were obtained by grouping pressure into y (theta) momentum flux.
+
+    // For idir == 0, i.e. r-direction:
+    // this takes the form: -alpha p / r
+    // where alpha = 1 for cylindrical and 2 for spherical
+    // note dloga(idir==0) = alpha/r
+
+    // For idir == 1,
+    // i.e. theta-direction for spherical and z-direction for cylindrical
+    // this takes the form: - p cot(theta) / r for spherical and 0 for cylindrical
+    // note: dloga(idir==1) = cot(theta)/r for spherical and 0 for cylindrical.
+
+    s[im2] += -dloga(i-2,j,k) * q_arr(i-2,j,k,QPRES);
+    s[im1] += -dloga(i-1,j,k) * q_arr(i-1,j,k,QPRES);
+    s[i0] += -dloga(i,j,k) * q_arr(i,j,k,QPRES);
+    s[ip1] += -dloga(i+1,j,k) * q_arr(i+1,j,k,QPRES);
+    s[ip2] += -dloga(i+2,j,k) * q_arr(i+2,j,k,QPRES);
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
 add_geometric_rhoe_source(amrex::Array4<amrex::Real const> const& q_arr,
