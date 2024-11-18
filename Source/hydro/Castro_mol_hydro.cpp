@@ -647,6 +647,14 @@ Castro::construct_mol_hydro_source(Real time, Real dt, MultiFab& A_update)
 #endif
 
         // scale the fluxes
+#if AMREX_SPACEDIM <= 2
+        if (!Geom().IsCartesian()) {
+          pradial.resize(xbx, 1);
+        }
+
+        Array4<Real> pradial_fab = pradial.array();
+#endif
+
         for (int idir = 0; idir < AMREX_SPACEDIM; ++idir) {
 
           const Box& nbx = amrex::surroundingNodes(bx, idir);
@@ -655,6 +663,20 @@ Castro::construct_mol_hydro_source(Real time, Real dt, MultiFab& A_update)
           Array4<Real const> const area_arr = (area[idir]).array(mfi);
 
           scale_flux(nbx, flux_arr, area_arr, dt);
+
+#if AMREX_SPACEDIM <= 2
+          // get the scaled radial pressure -- we need to treat this specially
+
+          if (idir == 0 && !mom_flux_has_p(0, 0, coord)) {
+            Array4<Real> const qex_arr = qe[idir].array();
+
+            amrex::ParallelFor(nbx,
+            [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
+            {
+                pradial_fab(i,j,k) = qex_arr(i,j,k,GDPRES) * dt;
+            });
+#endif
+          }
         }
 
 
