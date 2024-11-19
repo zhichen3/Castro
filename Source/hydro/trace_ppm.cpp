@@ -344,7 +344,7 @@ Castro::trace_ppm(const Box& bx,
 #ifndef AMREX_USE_GPU
     do_trace = do_source_trace[QUN];
 #else
-    if (coord == 2 || (idir == 0 && coord = 1)) {
+    if (coord == 2 || (idir == 0 && coord == 1)) {
         do_trace = 1;
     } else {
         do_trace = check_trace_source(srcQ, idir, i, j, k, QUN);

@@ -1268,20 +1268,6 @@ Castro::construct_ctu_hydro_source(Real time, Real dt)  // NOLINT(readability-co
         scale_rad_flux(nbx, rad_flux_arr, area_arr, dt);
 #endif
 
-#if AMREX_SPACEDIM <= 2
-        // get the scaled radial pressure -- we need to treat this specially
-
-        if (idir == 0 && !mom_flux_has_p(0, 0, coord)) {
-            Array4<Real> pradial_fab = pradial.array();
-
-            amrex::ParallelFor(nbx,
-            [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
-            {
-                pradial_fab(i,j,k) = qex_arr(i,j,k,GDPRES) * dt;
-            });
-        }
-#endif
-
         // Store the fluxes from this advance. For simplified SDC integration we
         // only need to do this on the last iteration.
 
