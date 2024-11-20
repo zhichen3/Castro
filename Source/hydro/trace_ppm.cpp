@@ -93,7 +93,7 @@ Castro::trace_ppm(const Box& bx,
     }
 
     if (coord == 2 &&
-        (n == QRHO || n == QPRES || n == QREINT
+        (n == QRHO || n == QPRES || n == QREINT ||
          n == QU || n == QV)) {
         do_source_trace[n] = 1;
         continue;
