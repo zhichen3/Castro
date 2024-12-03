@@ -269,16 +269,16 @@ Castro::divu(const Box& bx,
 
         // Cylindrical R-Z
 
+        // These are transverse averages in the y-direction
+        Real ul = 0.5_rt * (q_arr(i-1,j,k,QU) + q_arr(i-1,j-1,k,QU));
+        Real ur = 0.5_rt * (q_arr(i,j,k,QU) + q_arr(i,j-1,k,QU));
+
         if (i == 0) {
-            ux = 0.0_rt;
+            ux = 2.0_rt * (ur - ul) * dxinv;
         } else {
             Real rl = (i - 0.5_rt) * dx[0] + problo[0];
             Real rr = (i + 0.5_rt) * dx[0] + problo[0];
             Real rc = (i) * dx[0] + problo[0];
-
-            // These are transverse averages in the y-direction
-            Real ul = 0.5_rt * (q_arr(i-1,j,k,QU) + q_arr(i-1,j-1,k,QU));
-            Real ur = 0.5_rt * (q_arr(i,j,k,QU) + q_arr(i,j-1,k,QU));
 
             // Take 1/r d/dr(r*u)
             ux = (rr * ur - rl * ul) * dxinv / rc;
@@ -307,18 +307,18 @@ Castro::divu(const Box& bx,
         Real ul = 0.5_rt * (q_arr(i-1,j,k,QU) + q_arr(i-1,j-1,k,QU));
         Real ur = 0.5_rt * (q_arr(i,j,k,QU) + q_arr(i,j-1,k,QU));
 
+        // These are transverse averages in the x-direction
+        Real vb = 0.5_rt * (q_arr(i,j-1,k,QV) + q_arr(i-1,j-1,k,QV));
+        Real vt = 0.5_rt * (q_arr(i,j,k,QV) + q_arr(i-1,j,k,QV));
+
         // Finite difference to get divergence. ux = 1/r^2 d/dr(r^2 * u)
         ux = (ur * rr * rr - ul * rl * rl) * dxinv / (rc * rc);
 
         // If sinc == 0, then vy goes inf.
         // But due to Phi-symmetry, vt*sint = vb*sinb, so set to 0.
         if (sinc == 0.0_rt) {
-            vy = 0.0_rt;
+            vy = 2.0_rt * (vt - vb) * dxinv / rc;
         } else {
-            // These are transverse averages in the x-direction
-            Real vb = 0.5_rt * (q_arr(i,j-1,k,QV) + q_arr(i-1,j-1,k,QV));
-            Real vt = 0.5_rt * (q_arr(i,j,k,QV) + q_arr(i-1,j,k,QV));
-
             // Finite difference to get divergence. vy = 1/(r sin) * d/dtheta(v sin)
             vy = (vt * sint - vb * sinb) * dyinv / (rc * sinc);
         }
