@@ -3634,6 +3634,7 @@ Castro::apply_tagging_restrictions(TagBoxArray& tags, [[maybe_unused]] Real time
 #endif
 
     auto geomdata = geom.data();
+    const auto coord = geomdata.Coord();
 
     // Allow the user to limit tagging outside of some distance from the problem center.
 #ifdef AMREX_USE_OMP
@@ -3661,7 +3662,7 @@ Castro::apply_tagging_restrictions(TagBoxArray& tags, [[maybe_unused]] Real time
             loc[2] = problo[2] + (static_cast<Real>(k) + 0.5_rt) * dx[2] - problem::center[2];
 #endif
 
-            Real r = distance(geomdata, loc);
+            Real r = distance(coord, loc);
 
             Real max_dist_lo = 0.0;
             Real max_dist_hi = 0.0;

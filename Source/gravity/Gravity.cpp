@@ -1334,7 +1334,7 @@ Gravity::interpolate_monopole_grav(int level, RealVector& radial_grav, MultiFab&
     const Real dr = dx[0] / static_cast<Real>(gravity::drdxfac);
 
     const auto problo = geom.ProbLoArray();
-    const auto geomdata = geom.data();
+    const auto coord_type = geom.Coord();
 
 #ifdef _OPENMP
 #pragma omp parallel
@@ -1368,7 +1368,7 @@ Gravity::interpolate_monopole_grav(int level, RealVector& radial_grav, MultiFab&
             loc[2] = 0.0_rt;
 #endif
 
-            Real r = distance(geomdata, loc);
+            Real r = distance(coord_type, loc);
 
             int index = static_cast<int>(r / dr);
 
@@ -1457,8 +1457,7 @@ Gravity::compute_radial_mass(const Box& bx,
     Real dr = dx[0] / static_cast<Real>(gravity::drdxfac);
     Real drinv = 1.0_rt / dr;
 
-    const int coord_type = geom.Coord();
-    const auto geomdata = geom.data();
+    const auto coord_type = geom.Coord();
 
     AMREX_ALWAYS_ASSERT(coord_type >= 0 && coord_type <= 2);
 
@@ -1509,7 +1508,7 @@ Gravity::compute_radial_mass(const Box& bx,
         loc[2]= problo[2] + (static_cast<Real>(k) + 0.5_rt) * dx[2] - problem::center[2];
         Real lo_k = problo[2] + static_cast<Real>(k) * dx[2] - problem::center[2];
 
-        Real r = distance(geomdata, loc);
+        Real r = distance(coord_type, loc);
         int index = static_cast<int>(r * drinv);
 
         // We may be coming in here with a masked out zone (in a zone on a coarse

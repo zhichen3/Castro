@@ -579,7 +579,7 @@ extern "C"
 
       auto dx = geom.CellSizeArray();
       auto problo = geom.ProbLoArray();
-      auto geomdata = geom.data();
+      auto coord = geom.Coord();
 
       amrex::ParallelFor(bx,
       [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
@@ -608,7 +608,7 @@ extern "C"
           der(i,j,k,0) = (dat(i,j,k,1)*loc[0] + dat(i,j,k,2)*loc[1]) / (dat(i,j,k,0)*r);
 #endif
         } else {
-          Real r = distance(geomdata, loc);
+          Real r = distance(coord, loc);
 
           der(i,j,k,0) = (dat(i,j,k,1)*loc[0] +
                           dat(i,j,k,2)*loc[1] +
@@ -631,7 +631,7 @@ extern "C"
 
       auto dx = geom.CellSizeArray();
       auto problo = geom.ProbLoArray();
-      auto geomdata = geom.data();
+      const auto coord = geom.Coord();
 
       amrex::ParallelFor(bx,
       [=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
@@ -661,7 +661,7 @@ extern "C"
           der(i,j,k,0) = (-dat(i,j,k,1)*loc[1] + dat(i,j,k,2)*loc[0]) / (dat(i,j,k,0)*r);
 #endif
         } else {
-          Real r = distance(geomdata, loc);
+          Real r = distance(coord, loc);
 
           // we really mean just the velocity component that is
           // perpendicular to radial, and in general 3-d (e.g. a
@@ -951,7 +951,7 @@ extern "C"
 
       auto dx = geom.CellSizeArray();
 
-      const int coord_type = geom.Coord();
+      const auto coord_type = geom.Coord();
 
 #if AMREX_SPACEDIM == 2
       auto problo = geom.ProbLoArray();
