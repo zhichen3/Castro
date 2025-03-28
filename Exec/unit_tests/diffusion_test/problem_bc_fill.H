@@ -33,14 +33,14 @@ void problem_bc_fill(int i, int j, int k,
     const Real* problo = geomdata.ProbLo();
 
     Real r[3] = {0.0_rt};
-    r[0] = problo[0] + dx[0] * (static_cast<Real>(i) + 0.5_rt) - problem::center[0];
+    r[0] = problo[0] + dx[0] * (static_cast<Real>(i) + 1.0_rt) - problem::center[0];
 
 #if AMREX_SPACEDIM >= 2
-    r[1] = problo[1] + dx[1] * (static_cast<Real>(j) + 0.5_rt) - problem::center[1];
+    r[1] = problo[1] + dx[1] * (static_cast<Real>(j) + 1.0_rt) - problem::center[1];
 #endif
 
 #if AMREX_SPACEDIM == 3
-    r[2] = problo[2] + dx[2] * (static_cast<Real>(k) + 0.5_rt) - problem::center[2];
+    r[2] = problo[2] + dx[2] * (static_cast<Real>(k) + 1.0_rt) - problem::center[2];
 #endif
 
     if (   ((bcs(UTEMP).lo(0) == amrex::BCType::ext_dir) && (i < domlo[0]))

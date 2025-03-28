@@ -19,7 +19,8 @@ void problem_initialize ()
     // set center variable
 
     if (coord_type == 0) {
-        problem::center[0] = 0.5_rt * (problo[0] + probhi[0]);
+        problem::center[0] = 0.0_rt;
+        // problem::center[0] = 0.5_rt * (problo[0] + probhi[0]);
     } else if (coord_type >= 1) {
         problem::center[0] = 0.0;
     }

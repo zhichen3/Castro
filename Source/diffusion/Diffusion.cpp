@@ -119,9 +119,9 @@ Diffusion::make_mg_bc ()
     }
 
     // Set Neumann bc at r=0.
-    if (geom.IsSPHERICAL() || geom.IsRZ() ) {
-        mlmg_lobc[0] = MLLinOp::BCType::Neumann;
-    }
+    // if (geom.IsSPHERICAL() || geom.IsRZ() ) {
+    //     mlmg_lobc[0] = MLLinOp::BCType::Neumann;
+    // }
 
 }
 
