@@ -139,6 +139,22 @@ def slice(fnames:List[str], fields:List[str],
                                  linewidth=1.5,
                                  linestyle="-.")
 
+            # Annotate Latitude Lines
+            if theta is not None:
+                # Case where flame theta position is provided
+
+                # I need to annotate lines that are within the panel.
+                # First determine the theta of the panel boundary
+                # Then loop over different theta to draw vertical lines and do labels
+
+                pass
+            else:
+                # Case where the default positions are used
+                pass
+
+
+
+
             plot = sp.plots[field]
             plot.figure = fig
             plot.axes = grid[i+j*len(fields)].axes
