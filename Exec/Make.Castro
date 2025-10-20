@@ -184,8 +184,6 @@ ifeq ($(filter $(DIM_MODEL),1 2),)
   $(error Invalid DIM_MODEL=$(DIM_MODEL). Must be 1 or 2.)
 endif
 
-$(error DIM_MODEL can either be 1 or 2)
-
 ifeq ($(USE_MODEL_PARSER), TRUE)
   Bdirs += Util/model_parser
   DEFINES += -DMODEL_PARSER \
