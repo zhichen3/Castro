@@ -5,7 +5,7 @@ namespace model
 {
 
     AMREX_GPU_MANAGED int npts_x;
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
     AMREX_GPU_MANAGED int npts_y;
 #endif
     AMREX_GPU_MANAGED bool initialized;

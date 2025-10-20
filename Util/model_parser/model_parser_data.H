@@ -27,7 +27,7 @@ namespace model
 #endif
 
     extern AMREX_GPU_MANAGED int npts_x;
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
     extern AMREX_GPU_MANAGED int npts_y;
 #endif
 

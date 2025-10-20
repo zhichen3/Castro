@@ -130,7 +130,7 @@ locate_x(const amrex::Real x, const int model_index) {
     return loc;
 }
 
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 int
 locate_y(const amrex::Real y, const int model_index) {
@@ -681,7 +681,7 @@ read_model_file(std::string& model_file, const int model_index=0) {
     vars_stored.resize(nvars_model_file);
 
     int i{0};
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
     int j{0};
 #endif
 
@@ -854,7 +854,7 @@ read_model_file(std::string& model_file, const int model_index=0) {
         if (model::profile(model_index).x(i) != model::profile(model_index).x(i-1)) {
             i++;
         }
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
         if (model::profile(model_index).y(j) != model::profile(model_index).y(j-1)) {
             j++;
         }
@@ -864,13 +864,13 @@ read_model_file(std::string& model_file, const int model_index=0) {
     }  // end of loop over lines in the model file
 
     model::npts_x = i;
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
     model::npts_y = j;
 #endif
 
     amrex::Print() << Font::Bold << FGColor::Green
                    << model::npts_x << " x-points found in the initial model"
-#if DIM_MODEL >= 2
+#if DIM_MODEL == 2
                    << model::npts_y << " y-points found in the initial model"
 #endif
                    << ResetDisplay << std::endl;
