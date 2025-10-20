@@ -23,11 +23,11 @@ void
 generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
                        const model_t model_params) {
 
-    model::npts = npts_model;
+    model::npts_x = npts_model;
     model::initialized = true;
 
-    if (npts_model > NPTS_MODEL) {
-        amrex::Error("Error: model has more than NPTS_MODEL points,  Increase MAX_NPTS_MODEL");
+    if (npts_model > NPTS_X_MODEL) {
+        amrex::Error("Error: model has more than NPTS_X_MODEL points,  Increase MAX_NPTS_X_MODEL");
     }
 
     // compute the pressure scale height (for an isothermal, ideal-gas
@@ -40,7 +40,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
     Real dx = (xmax - xmin) / npts_model;
 
     for (int i = 0; i < npts_model; i++) {
-        model::profile(0).r(i) = xmin + (static_cast<Real>(i) + 0.5_rt) * dx;
+        model::profile(0).x(i) = xmin + (static_cast<Real>(i) + 0.5_rt) * dx;
     }
 
     for (int i = 0; i < npts_model; i++) {
@@ -48,7 +48,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
         amrex::Real density;
         amrex::Real pressure;
 
-        amrex::Real profile = 1.0 - (eos_rp::eos_gamma - 1.0) / eos_rp::eos_gamma * model::profile(0).r(i) / model_params.scale_height;
+        amrex::Real profile = 1.0 - (eos_rp::eos_gamma - 1.0) / eos_rp::eos_gamma * model::profile(0).x(i) / model_params.scale_height;
 
         if (profile > 0.0) {
             density = std::max(model_params.dens_base * std::pow(profile, 1.0/(eos_rp::eos_gamma - 1.0)),

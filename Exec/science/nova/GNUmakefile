@@ -16,7 +16,7 @@ USE_GRAV         = TRUE
 CASTRO_HOME := ../../..
 
 USE_MODEL_PARSER = TRUE
-MAX_NPTS_MODEL = 20000
+MAX_NPTS_X_MODEL = 20000
 
 # This sets the EOS directory in $(MICROPHYSICS_HOME)/EOS
 EOS_DIR     := helmholtz

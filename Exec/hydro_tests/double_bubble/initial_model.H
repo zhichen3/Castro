@@ -23,11 +23,11 @@ void
 generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
                        const model_t model_params) {
 
-    model::npts = npts_model;
+    model::npts_x = npts_model;
     model::initialized = true;
 
-    if (npts_model > NPTS_MODEL) {
-        amrex::Error("Error: model has more than NPTS_MODEL points,  Increase MAX_NPTS_MODEL");
+    if (npts_model > NPTS_X_MODEL) {
+        amrex::Error("Error: model has more than NPTS_X_MODEL points,  Increase MAX_NPTS_X_MODEL");
     }
 
     // compute the pressure scale height (for an isothermal, ideal-gas
@@ -40,7 +40,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
     Real dx = (xmax - xmin) / npts_model;
 
     for (int i = 0; i < npts_model; i++) {
-        model::profile(0).r(i) = xmin + (static_cast<Real>(i) + 0.5_rt) * dx;
+        model::profile(0).x(i) = xmin + (static_cast<Real>(i) + 0.5_rt) * dx;
     }
 
     // create the constant if we are isentropic
@@ -68,22 +68,22 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
         model::profile(0).state(0, model::ispec+n) = model_params.xn[n];
     }
 
-    model::profile(0).r(0) = xmin + 0.5_rt * dx;
+    model::profile(0).x(0) = xmin + 0.5_rt * dx;
 
     // integrate up from the base
 
     for (int j = 1; j < npts_model; j++) {
 
-        model::profile(0).r(j) = xmin + (static_cast<Real>(j) + 0.5_rt) * dx;
+        model::profile(0).x(j) = xmin + (static_cast<Real>(j) + 0.5_rt) * dx;
 
         if (problem::do_isentropic == 1) {
             model::profile(0).state(j, model::idens) = model_params.dens_base *
                 std::pow(gravity::const_grav * model_params.dens_base * (gamma_const - 1.0) *
-                         (model::profile(0).r(j) - model::profile(0).r(0)) /
+                         (model::profile(0).x(j) - model::profile(0).x(0)) /
                          (gamma_const * model_params.p_base) + 1.0_rt, 1.0_rt/(gamma_const - 1.e0_rt));
         } else {
             model::profile(0).state(j, model::idens) = model_params.dens_base *
-                std::exp(-(model::profile(0).r(j) - model::profile(0).r(0)) / H);
+                std::exp(-(model::profile(0).x(j) - model::profile(0).x(0)) / H);
         }
 
         model::profile(0).state(j, model::ipres) = model::profile(0).state(j-1, model::ipres) -

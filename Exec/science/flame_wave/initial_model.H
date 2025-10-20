@@ -107,11 +107,11 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
     // we actually require that the number of points is the same for each
     // model, so we'll just set it each time
 
-    model::npts = npts_model;
+    model::npts_x = npts_model;
     model::initialized = true;
 
-    if (npts_model > NPTS_MODEL) {
-        amrex::Error("Error: model has more than NPTS_MODEL points,  Increase MAX_NPTS_MODEL");
+    if (npts_model > NPTS_X_MODEL) {
+        amrex::Error("Error: model has more than NPTS_X_MODEL points,  Increase MAX_NPTS_X_MODEL");
     }
 
     // create the grid -- cell centers
@@ -119,7 +119,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
     Real dx = (xmax - xmin) / static_cast<amrex::Real>(npts_model);
 
     for (int i = 0; i < npts_model; i++) {
-        model::profile(model_num).r(i) =
+        model::profile(model_num).x(i) =
             xmin + (static_cast<Real>(i) + 0.5_rt) * dx;
     }
 
@@ -128,7 +128,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
 
     int index_base = -1;
     for (int i = 0; i < npts_model; i++) {
-        if (model::profile(model_num).r(i) >= xmin + model_params.H_star) {
+        if (model::profile(model_num).x(i) >= xmin + model_params.H_star) {
             index_base = i+1;
             break;
         }
@@ -163,7 +163,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
 
     for (int i = 0; i < npts_model; i++) {
 
-        Real xc = model::profile(model_num).r(i) -
+        Real xc = model::profile(model_num).x(i) -
             (xmin + model_params.H_star) - 1.5_rt * model_params.atm_delta;
 
         // hyperbolic tangent transition:
@@ -237,7 +237,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
 
     for (int i = index_base+1; i < npts_model; i++) {
 
-       if ((model::profile(model_num).r(i) > xmin + model_params.H_star + 3.0_rt * model_params.atm_delta) && !flipped) {
+       if ((model::profile(model_num).x(i) > xmin + model_params.H_star + 3.0_rt * model_params.atm_delta) && !flipped) {
            if (i == index_base + 1) {
                amrex::Error("atm_delta is too small for the grid spacing (at least one transition zone is required)");
            }
@@ -370,7 +370,7 @@ generate_initial_model(const int npts_model, const Real xmin, const Real xmax,
 
                    // do isothermal
 
-                   if (model::profile(model_num).r(i) > xmin + model_params.H_star + 3.0_rt * model_params.atm_delta) {
+                   if (model::profile(model_num).x(i) > xmin + model_params.H_star + 3.0_rt * model_params.atm_delta) {
                        temp_zone = model_params.T_lo;
                    }
 
