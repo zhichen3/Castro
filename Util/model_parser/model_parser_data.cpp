@@ -4,7 +4,10 @@
 namespace model
 {
 
-    AMREX_GPU_MANAGED int npts;
+    AMREX_GPU_MANAGED int npts_x;
+#if DIM_MODEL >= 2
+    AMREX_GPU_MANAGED int npts_y;
+#endif
     AMREX_GPU_MANAGED bool initialized;
 
     AMREX_GPU_MANAGED amrex::Array1D<initial_model_t, 0, NUM_MODELS-1> profile;

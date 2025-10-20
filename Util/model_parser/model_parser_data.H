@@ -26,12 +26,23 @@ namespace model
     constexpr int iaux = -1;
 #endif
 
-    extern AMREX_GPU_MANAGED int npts;
+    extern AMREX_GPU_MANAGED int npts_x;
+#if DIM_MODEL >= 2
+    extern AMREX_GPU_MANAGED int npts_y;
+#endif
+
     extern AMREX_GPU_MANAGED bool initialized;
 
     struct initial_model_t {
-        amrex::Array2D<amrex::Real, 0, NPTS_MODEL-1, 0, nvars-1> state;
-        amrex::Array1D<amrex::Real, 0, NPTS_MODEL-1> r;
+#if DIM_MODEL == 1
+        amrex::Array2D<amrex::Real, 0, NPTS_X_MODEL-1, 0, nvars-1> state;
+        amrex::Array1D<amrex::Real, 0, NPTS_X_MODEL-1> x;
+#elif DIM_MODEL == 2
+        amrex::Array3D<amrex::Real, 0, NPTS_X_MODEL-1,
+                       0, NPTS_Y_MODEL-1, 0, nvars-1> state;
+        amrex::Array1D<amrex::Real, 0, NPTS_X_MODEL-1> x;
+        amrex::Array1D<amrex::Real, 0, NPTS_Y_MODEL-1> y;
+#endif
     };
 
     // Tolerance used for getting the total star mass equal to the desired mass.
